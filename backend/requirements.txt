@@ -10,3 +10,4 @@ cloudinary
 python-dotenv
 pydantic[email]
 resend
+bcrypt==4.1.2
