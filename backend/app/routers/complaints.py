@@ -106,3 +106,36 @@ def get_all_complaints(
     results.sort(key=lambda c: (not c.is_overdue, ))
 
     return results
+
+@router.patch("/{complaint_id}/status", response_model=schemas.ComplaintOut)
+def update_complaint_status(
+    complaint_id: int,
+    update: schemas.ComplaintStatusUpdate,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(require_admin),
+):
+    complaint = db.query(models.Complaint).filter(models.Complaint.id == complaint_id).first()
+    if not complaint:
+        raise HTTPException(status_code=404, detail="Complaint not found")
+
+    if complaint.current_status == models.ComplaintStatus.resolved:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot update a resolved complaint — it is closed",
+        )
+
+    complaint.current_status = update.status
+
+    history_entry = models.ComplaintStatusHistory(
+        complaint_id=complaint.id,
+        status=update.status,
+        note=update.note,
+        changed_by=admin_user.id,
+    )
+    db.add(history_entry)
+    db.commit()
+    db.refresh(complaint)
+
+    # TODO (Step 7): trigger status-change email to resident here
+
+    return _attach_overdue_flag(complaint)
