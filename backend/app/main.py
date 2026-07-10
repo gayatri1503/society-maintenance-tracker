@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import auth as auth_router
 from .routers import complaints as complaints_router
+from .routers import notices as notices_router
 
 app = FastAPI(title="Society Maintenance Tracker API")
 
@@ -16,7 +17,7 @@ app.add_middleware(
 
 app.include_router(auth_router.router)
 app.include_router(complaints_router.router)
-
+app.include_router(notices_router.router)
 
 @app.get("/")
 def root():
