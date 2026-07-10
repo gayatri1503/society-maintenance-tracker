@@ -139,3 +139,21 @@ def update_complaint_status(
     # TODO (Step 7): trigger status-change email to resident here
 
     return _attach_overdue_flag(complaint)
+
+
+@router.patch("/{complaint_id}/priority", response_model=schemas.ComplaintOut)
+def update_complaint_priority(
+    complaint_id: int,
+    update: schemas.ComplaintPriorityUpdate,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(require_admin),
+):
+    complaint = db.query(models.Complaint).filter(models.Complaint.id == complaint_id).first()
+    if not complaint:
+        raise HTTPException(status_code=404, detail="Complaint not found")
+
+    complaint.priority = update.priority
+    db.commit()
+    db.refresh(complaint)
+
+    return _attach_overdue_flag(complaint)
