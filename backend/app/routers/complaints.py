@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc
 
 from ..database import get_db
@@ -61,3 +61,17 @@ async def create_complaint(
     db.refresh(complaint)
 
     return _attach_overdue_flag(complaint)
+
+@router.get("/me", response_model=List[schemas.ComplaintOut])
+def get_my_complaints(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    complaints = (
+        db.query(models.Complaint)
+        .options(joinedload(models.Complaint.history))
+        .filter(models.Complaint.resident_id == current_user.id)
+        .order_by(desc(models.Complaint.created_at))
+        .all()
+    )
+    return [_attach_overdue_flag(c) for c in complaints]    
