@@ -2,6 +2,7 @@ import os
 import uuid
 from datetime import datetime
 from typing import Optional, List
+from datetime import date as date_type
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.orm import Session, joinedload
@@ -75,3 +76,33 @@ def get_my_complaints(
         .all()
     )
     return [_attach_overdue_flag(c) for c in complaints]    
+
+
+@router.get("", response_model=List[schemas.ComplaintOut])
+def get_all_complaints(
+    category: Optional[str] = Query(None),
+    status_filter: Optional[models.ComplaintStatus] = Query(None, alias="status"),
+    date_from: Optional[date_type] = Query(None),
+    date_to: Optional[date_type] = Query(None),
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(require_admin),
+):
+    query = db.query(models.Complaint).options(joinedload(models.Complaint.history))
+
+    if category:
+        query = query.filter(models.Complaint.category == category)
+    if status_filter:
+        query = query.filter(models.Complaint.current_status == status_filter)
+    if date_from:
+        query = query.filter(models.Complaint.created_at >= date_from)
+    if date_to:
+        query = query.filter(models.Complaint.created_at <= date_to)
+
+    complaints = query.order_by(desc(models.Complaint.created_at)).all()
+
+    results = [_attach_overdue_flag(c) for c in complaints]
+
+    # Surface overdue complaints at the top, most recent first within each group
+    results.sort(key=lambda c: (not c.is_overdue, ))
+
+    return results
