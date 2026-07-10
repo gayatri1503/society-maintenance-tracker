@@ -54,7 +54,7 @@ class Complaint(Base):
     resident = relationship("User", back_populates="complaints")
     history = relationship("ComplaintStatusHistory", back_populates="complaint", order_by="ComplaintStatusHistory.changed_at")
 
-    def is_overdue(self, threshold_days: int) -> bool:
+    def check_overdue(self, threshold_days: int) -> bool:
         if self.current_status == ComplaintStatus.resolved:
             return False
         age = datetime.utcnow() - self.created_at
