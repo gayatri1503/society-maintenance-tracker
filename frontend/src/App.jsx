@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import ResidentDashboard from "./pages/ResidentDashboard";
 import RaiseComplaint from "./pages/RaiseComplaint";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -23,6 +24,14 @@ function App() {
         element={
           <ProtectedRoute>
             <RaiseComplaint />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminDashboard />
           </ProtectedRoute>
         }
       />
