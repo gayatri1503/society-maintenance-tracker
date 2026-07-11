@@ -6,6 +6,7 @@ from sqlalchemy import desc
 from ..database import get_db
 from .. import models, schemas
 from ..deps import get_current_user, require_admin
+from ..email_utils import send_important_notice_email
 
 router = APIRouter(prefix="/notices", tags=["notices"])
 
@@ -27,6 +28,14 @@ def create_notice(
     db.refresh(notice)
 
     # TODO (Step 8): if is_important, trigger email to all residents here
+    if notice.is_important:
+        residents = db.query(models.User).filter(models.User.role == models.UserRole.resident).all()
+        for resident in residents:
+            send_important_notice_email(
+                to_email=resident.email,
+                title=notice.title,
+                body=notice.body,
+            )
 
     return notice
 

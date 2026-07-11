@@ -12,6 +12,7 @@ from ..database import get_db
 from .. import models, schemas
 from ..deps import get_current_user, require_admin
 from ..cloudinary_utils import upload_complaint_photo
+from ..email_utils import send_status_change_email
 
 router = APIRouter(prefix="/complaints", tags=["complaints"])
 
@@ -137,6 +138,15 @@ def update_complaint_status(
     db.refresh(complaint)
 
     # TODO (Step 7): trigger status-change email to resident here
+    resident = db.query(models.User).filter(models.User.id == complaint.resident_id).first()
+    if resident:
+        send_status_change_email(
+            to_email=resident.email,
+            complaint_id=complaint.id,
+            category=complaint.category,
+            new_status=update.status.value,
+            note=update.note,
+        )
 
     return _attach_overdue_flag(complaint)
 
