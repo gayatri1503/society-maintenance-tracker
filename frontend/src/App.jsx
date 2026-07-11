@@ -6,6 +6,7 @@ import RaiseComplaint from "./pages/RaiseComplaint";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import NoticeBoard from "./pages/NoticeBoard";
+import DashboardStats from "./pages/DashboardStats";
 
 function App() {
   return (
@@ -41,6 +42,14 @@ function App() {
         element={
           <ProtectedRoute>
             <NoticeBoard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard-stats"
+        element={
+          <ProtectedRoute requireAdmin>
+            <DashboardStats />
           </ProtectedRoute>
         }
       />
