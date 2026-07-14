@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import apiClient from "../api/client";
 
 const CATEGORIES = ["Plumbing", "Electrical", "Cleaning", "Security", "Parking", "Other"];
@@ -36,8 +36,11 @@ export default function RaiseComplaint() {
 
   return (
     <div className="page">
-      <h2>Raise a Complaint</h2>
-      <form onSubmit={handleSubmit}>
+      <div className="page-header">
+        <h2>Raise a Complaint</h2>
+        <Link to="/">← Back to Dashboard</Link>
+      </div>
+      <form onSubmit={handleSubmit} className="complaint-form">
         <label>Category</label>
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           {CATEGORIES.map((c) => (

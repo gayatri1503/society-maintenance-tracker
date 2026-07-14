@@ -120,6 +120,30 @@ input:focus, select:focus, textarea:focus {
 }
 .auth-page p { text-align: center; margin-top: 1rem; font-size: 0.9rem; }
 
+.complaint-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 480px;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1.5rem;
+}
+.complaint-form label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--slate-dark);
+  margin-top: 0.4rem;
+}
+.complaint-form textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+.complaint-form input[type="file"] {
+  padding: 0.4rem;
+}
+
 /* ---------- Buttons ---------- */
 
 .primary-button {
